@@ -3,7 +3,7 @@ import axios from "axios";
 // Centralized Axios instance — every API call in the app routes through this,
 // so the base URL and auth header logic only need to be defined once.
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
+  baseURL: "https://ai-finance-tracker-production-3dft.up.railway.app",
   headers: {
     "Content-Type": "application/json",
   },
