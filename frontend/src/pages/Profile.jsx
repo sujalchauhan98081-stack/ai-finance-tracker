@@ -4,7 +4,7 @@ import api from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user,updateUser } = useAuth();
   const [formData, setFormData] = useState({ name: "", email: "" });
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -60,10 +60,22 @@ const Profile = () => {
 
     setSubmitting(true);
     try {
-      await api.put("/users/profile", {
+      const response = await api.put("/users/profile", {
         name: formData.name,
         email: formData.email,
       });
+
+      // Update formData with the response from server
+      setFormData({
+        name: response.data.data.name,
+        email: response.data.data.email,
+      });
+
+      // Update AuthContext so navbar updates too
+      updateUser(response.data.data);
+
+      
+
       toast.success("Profile updated successfully");
     } catch (error) {
       const message = error.response?.data?.message || "Failed to update profile";
@@ -72,7 +84,6 @@ const Profile = () => {
       setSubmitting(false);
     }
   };
-
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (!validatePassword()) return;
@@ -83,12 +94,18 @@ const Profile = () => {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });
-      toast.success("Password changed successfully");
+
+      // Clear all password fields and errors after successful update
       setPasswordData({
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
+
+      // Clear any previous errors
+      setPasswordErrors({});
+
+      toast.success("Password changed successfully");
     } catch (error) {
       const message = error.response?.data?.message || "Failed to change password";
       toast.error(message);
@@ -96,9 +113,8 @@ const Profile = () => {
       setPasswordSubmitting(false);
     }
   };
-
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="w-full mx-auto space-y-6 max-w-2xl">
       {/* Page Title */}
       <div>
         <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
@@ -124,9 +140,8 @@ const Profile = () => {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className={`w-full rounded-lg border px-3 py-2 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
-              errors.name ? "border-red-400" : "border-gray-200 dark:border-gray-700"
-            }`}
+            className={`w-full rounded-lg border px-3 py-2 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${errors.name ? "border-red-400" : "border-gray-200 dark:border-gray-700"
+              }`}
           />
           {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
         </div>
@@ -140,9 +155,8 @@ const Profile = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className={`w-full rounded-lg border px-3 py-2 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
-              errors.email ? "border-red-400" : "border-gray-200 dark:border-gray-700"
-            }`}
+            className={`w-full rounded-lg border px-3 py-2 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${errors.email ? "border-red-400" : "border-gray-200 dark:border-gray-700"
+              }`}
           />
           {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
         </div>
@@ -171,9 +185,8 @@ const Profile = () => {
             name="currentPassword"
             value={passwordData.currentPassword}
             onChange={handlePasswordChange}
-            className={`w-full rounded-lg border px-3 py-2 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
-              passwordErrors.currentPassword ? "border-red-400" : "border-gray-200 dark:border-gray-700"
-            }`}
+            className={`w-full rounded-lg border px-3 py-2 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${passwordErrors.currentPassword ? "border-red-400" : "border-gray-200 dark:border-gray-700"
+              }`}
           />
           {passwordErrors.currentPassword && (
             <p className="mt-1 text-xs text-red-500">{passwordErrors.currentPassword}</p>
@@ -189,9 +202,8 @@ const Profile = () => {
             name="newPassword"
             value={passwordData.newPassword}
             onChange={handlePasswordChange}
-            className={`w-full rounded-lg border px-3 py-2 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
-              passwordErrors.newPassword ? "border-red-400" : "border-gray-200 dark:border-gray-700"
-            }`}
+            className={`w-full rounded-lg border px-3 py-2 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${passwordErrors.newPassword ? "border-red-400" : "border-gray-200 dark:border-gray-700"
+              }`}
           />
           {passwordErrors.newPassword && (
             <p className="mt-1 text-xs text-red-500">{passwordErrors.newPassword}</p>
@@ -207,9 +219,8 @@ const Profile = () => {
             name="confirmPassword"
             value={passwordData.confirmPassword}
             onChange={handlePasswordChange}
-            className={`w-full rounded-lg border px-3 py-2 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
-              passwordErrors.confirmPassword ? "border-red-400" : "border-gray-200 dark:border-gray-700"
-            }`}
+            className={`w-full rounded-lg border px-3 py-2 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${passwordErrors.confirmPassword ? "border-red-400" : "border-gray-200 dark:border-gray-700"
+              }`}
           />
           {passwordErrors.confirmPassword && (
             <p className="mt-1 text-xs text-red-500">{passwordErrors.confirmPassword}</p>

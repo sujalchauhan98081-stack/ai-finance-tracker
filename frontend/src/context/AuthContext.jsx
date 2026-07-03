@@ -47,6 +47,13 @@ export const AuthProvider = ({ children }) => {
     return userData;
   };
 
+  // ---------- UPDATE USER ----------
+  // NEW: Function to update user data (called when profile is updated)
+  const updateUser = (updatedUserData) => {
+    localStorage.setItem("user", JSON.stringify(updatedUserData));
+    setUser(updatedUserData);
+  };
+
   // ---------- LOGOUT ----------
   const logout = () => {
     localStorage.removeItem("token");
@@ -55,7 +62,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
