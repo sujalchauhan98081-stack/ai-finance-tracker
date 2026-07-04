@@ -1,6 +1,10 @@
 import Transaction from "../models/Transaction.js";
 import { getGroqClient } from "../utils/groqClient.js";
 
+// Model recommendation (as of July 2026): openai/gpt-oss-120b
+// Groq deprecated the Llama 3.x and Qwen3 32B models in June 2026.
+const AI_MODEL = "openai/gpt-oss-120b";
+
 const buildTransactionContext = (transactions) => {
   if (transactions.length === 0) return "No transactions recorded yet.";
 
@@ -32,6 +36,8 @@ Total Transactions: ${transactions.length}
   `;
 };
 
+// @route   GET /api/ai/insights
+// @access  Private
 export const getLiveInsights = async (req, res) => {
   try {
     const groq = await getGroqClient();
@@ -40,9 +46,9 @@ export const getLiveInsights = async (req, res) => {
     const transactions = await Transaction.find({ userId }).sort({ date: -1 });
     const context = buildTransactionContext(transactions);
 
-    const message = await groq.chat.completions.create({
-      model: "llama-3.1-70b-versatile", // Updated model
-      max_tokens: 500,
+    const completion = await groq.chat.completions.create({
+      model: AI_MODEL,
+      max_completion_tokens: 500,
       messages: [
         {
           role: "user",
@@ -55,7 +61,7 @@ Format your response as a numbered list. Keep each insight concise (1-2 sentence
       ],
     });
 
-    const insights = message.choices[0].message.content;
+    const insights = completion.choices[0].message.content;
 
     res.status(200).json({
       success: true,
@@ -74,6 +80,8 @@ Format your response as a numbered list. Keep each insight concise (1-2 sentence
   }
 };
 
+// @route   GET /api/ai/recommendations
+// @access  Private
 export const getRecommendations = async (req, res) => {
   try {
     const groq = await getGroqClient();
@@ -82,9 +90,9 @@ export const getRecommendations = async (req, res) => {
     const transactions = await Transaction.find({ userId }).sort({ date: -1 });
     const context = buildTransactionContext(transactions);
 
-    const message = await groq.chat.completions.create({
-      model: "llama-3.1-70b-versatile", // Updated model
-      max_tokens: 500,
+    const completion = await groq.chat.completions.create({
+      model: AI_MODEL,
+      max_completion_tokens: 500,
       messages: [
         {
           role: "user",
@@ -102,7 +110,7 @@ Keep each recommendation to 1-2 sentences.`,
       ],
     });
 
-    const recommendations = message.choices[0].message.content;
+    const recommendations = completion.choices[0].message.content;
 
     res.status(200).json({
       success: true,
@@ -118,6 +126,8 @@ Keep each recommendation to 1-2 sentences.`,
   }
 };
 
+// @route   POST /api/ai/chat
+// @access  Private
 export const chatWithAI = async (req, res) => {
   try {
     const groq = await getGroqClient();
@@ -137,9 +147,9 @@ export const chatWithAI = async (req, res) => {
 
     const context = buildTransactionContext(transactions);
 
-    const aiMessage = await groq.chat.completions.create({
-      model: "llama-3.1-70b-versatile", // Updated model
-      max_tokens: 300,
+    const completion = await groq.chat.completions.create({
+      model: AI_MODEL,
+      max_completion_tokens: 300,
       messages: [
         {
           role: "user",
@@ -154,7 +164,7 @@ Answer concisely in 1-2 sentences. If the user asks about their specific numbers
       ],
     });
 
-    const reply = aiMessage.choices[0].message.content;
+    const reply = completion.choices[0].message.content;
 
     res.status(200).json({
       success: true,
