@@ -164,7 +164,7 @@ const AIInsights = () => {
               <CardSkeleton />
             ) : recommendations ? (
               <div className="prose prose-sm dark:prose-invert max-w-none [&_*]:text-gray-600 dark:[&_*]:text-gray-300 [&_strong]:text-gray-800 dark:[&_strong]:text-gray-100 [&_strong]:font-semibold">
-                <ReactMarkdown>{insights}</ReactMarkdown>
+                <ReactMarkdown>{recommendations}</ReactMarkdown>
               </div>
             ) : (
               <p className="text-sm text-gray-400 dark:text-gray-500">

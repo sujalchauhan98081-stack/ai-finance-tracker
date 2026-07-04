@@ -5,6 +5,9 @@ import { getGroqClient } from "../utils/groqClient.js";
 // Groq deprecated the Llama 3.x and Qwen3 32B models in June 2026.
 const AI_MODEL = "openai/gpt-oss-120b";
 
+const formatINR = (amount) =>
+  Math.round(amount).toLocaleString("en-IN");
+
 const buildTransactionContext = (transactions) => {
   if (transactions.length === 0) return "No transactions recorded yet.";
 
@@ -24,13 +27,13 @@ const buildTransactionContext = (transactions) => {
   });
 
   const categoryBreakdown = Object.entries(byCategory)
-    .map(([cat, amount]) => `${cat}: ₹${amount.toFixed(0)}`)
+    .map(([cat, amount]) => `${cat}: ₹${formatINR(amount)}`)
     .join(", ");
 
   return `
-Total Income: ₹${totalIncome.toFixed(0)}
-Total Expenses: ₹${totalExpenses.toFixed(0)}
-Balance: ₹${(totalIncome - totalExpenses).toFixed(0)}
+Total Income: ₹${formatINR(totalIncome)}
+Total Expenses: ₹${formatINR(totalExpenses)}
+Balance: ₹${formatINR(totalIncome - totalExpenses)}
 Spending by Category: ${categoryBreakdown || "No expenses yet"}
 Total Transactions: ${transactions.length}
   `;
@@ -56,7 +59,7 @@ export const getLiveInsights = async (req, res) => {
 
 ${context}
 
-Format your response as a numbered list. Keep each insight concise (1-2 sentences).`,
+Format your response as a numbered list. Bold the key takeaway at the start of each point. Use Indian comma formatting for all rupee amounts (e.g. ₹5,11,601). Keep each insight concise (1-2 sentences).`,
         },
       ],
     });
@@ -105,7 +108,7 @@ For each recommendation:
 2. Suggest a specific action
 3. Estimate potential monthly savings
 
-Keep each recommendation to 1-2 sentences.`,
+Format your response as a numbered list. Bold the spending category at the start of each point. Use Indian comma formatting for all rupee amounts (e.g. ₹5,11,601). Keep each recommendation to 1-2 sentences.`,
         },
       ],
     });
@@ -159,7 +162,7 @@ ${context}
 
 User's question: "${message}"
 
-Answer concisely in 1-2 sentences. If the user asks about their specific numbers, use the data above.`,
+Answer concisely in 1-2 sentences. Use Indian comma formatting for all rupee amounts (e.g. ₹5,11,601). If the user asks about their specific numbers, use the data above.`,
         },
       ],
     });

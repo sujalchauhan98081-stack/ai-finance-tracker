@@ -1,4 +1,26 @@
 @import "tailwindcss";
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-fade {
+  animation: fadeIn 0.25s ease-out;
+}
+
+/* Subtle press feedback on every button, site-wide */
+button {
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
 
 
 

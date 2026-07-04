@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import { Wallet, PieChart as PieChartIcon, TrendingUp, PlusCircle } from "lucide-react";
 import api from "../services/api.js";
 import { useTheme } from "../context/ThemeContext.jsx";
 import SummaryCard from "../components/ui/SummaryCard.jsx";
@@ -44,9 +46,32 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-gray-400 dark:text-gray-500">
-          Loading dashboard...
+        <p className="text-gray-400 dark:text-gray-500">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  // First-time / no-data state: nothing to show yet, guide the user to add their first transaction
+  if (summary && summary.transactionCount === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center py-20 px-4">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center mb-5 shadow-sm">
+          <Wallet className="w-8 h-8 text-white" />
+        </div>
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+          Welcome to your Dashboard
+        </h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-sm">
+          You haven't added any transactions yet. Add your first one to see
+          your spending breakdown, trends, and AI insights come to life.
         </p>
+        <Link
+          to="/transactions"
+          className="inline-flex items-center gap-2 mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-2.5 rounded-xl transition-colors"
+        >
+          <PlusCircle className="w-4 h-4" />
+          Add Your First Transaction
+        </Link>
       </div>
     );
   }
@@ -111,9 +136,15 @@ const Dashboard = () => {
             </div>
           </div>
         ) : (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex items-center justify-center h-72">
-            <p className="text-gray-400 dark:text-gray-500">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col items-center justify-center h-72 text-center">
+            <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-3">
+              <PieChartIcon className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+            </div>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
               No expense data yet
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              Add an expense to see your category breakdown
             </p>
           </div>
         )}
@@ -130,9 +161,15 @@ const Dashboard = () => {
             </div>
           </div>
         ) : (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex items-center justify-center h-72">
-            <p className="text-gray-400 dark:text-gray-500">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col items-center justify-center h-72 text-center">
+            <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-3">
+              <TrendingUp className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+            </div>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
               No trend data yet
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              Trends will appear once you have transactions across months
             </p>
           </div>
         )}

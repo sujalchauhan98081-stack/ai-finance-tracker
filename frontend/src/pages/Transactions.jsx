@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import { Receipt, SearchX, PlusCircle, XCircle } from "lucide-react";
 import api from "../services/api.js";
 import Modal from "../components/ui/Modal.jsx";
 import TransactionForm from "../components/ui/TransactionForm.jsx";
@@ -20,6 +21,9 @@ const Transactions = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({ total: 0, pages: 1 });
+
+  const hasActiveFilters =
+    !!(filters.type || filters.category || filters.startDate || filters.endDate || searchQuery);
 
   useEffect(() => {
     setCurrentPage(1); // Reset to page 1 when filters/search change
@@ -105,6 +109,11 @@ const Transactions = () => {
     setEditingTransaction(null);
   };
 
+  const handleClearFilters = () => {
+    setFilters({ type: "", category: "", startDate: "", endDate: "" });
+    setSearchQuery("");
+  };
+
   const handleExport = async (format) => {
     try {
       const params = new URLSearchParams();
@@ -130,10 +139,8 @@ const Transactions = () => {
         return;
       }
 
-      // Get the file blob
       const blob = await response.blob();
 
-      // Create download link
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -202,9 +209,47 @@ const Transactions = () => {
           ))}
         </div>
       ) : transactions.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl">
-          <p className="text-gray-500 dark:text-gray-400">No transactions found</p>
-        </div>
+        hasActiveFilters ? (
+          // Empty state: filters/search applied but nothing matched
+          <div className="flex flex-col items-center justify-center text-center py-16 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+            <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-4">
+              <SearchX className="w-7 h-7 text-gray-400 dark:text-gray-500" />
+            </div>
+            <h3 className="text-base font-semibold text-gray-700 dark:text-gray-200">
+              No matching transactions
+            </h3>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1 max-w-xs">
+              Try adjusting your filters or search term.
+            </p>
+            <button
+              onClick={handleClearFilters}
+              className="inline-flex items-center gap-2 mt-5 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+            >
+              <XCircle className="w-4 h-4" />
+              Clear all filters
+            </button>
+          </div>
+        ) : (
+          // Empty state: no transactions exist at all yet
+          <div className="flex flex-col items-center justify-center text-center py-16 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center mb-4 shadow-sm">
+              <Receipt className="w-7 h-7 text-white" />
+            </div>
+            <h3 className="text-base font-semibold text-gray-700 dark:text-gray-200">
+              No transactions yet
+            </h3>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1 max-w-xs">
+              Start tracking your income and expenses to see them here.
+            </p>
+            <button
+              onClick={handleOpenAddModal}
+              className="inline-flex items-center gap-2 mt-5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl transition-colors text-sm"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Add Your First Transaction
+            </button>
+          </div>
+        )
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
           {/* Desktop table */}
